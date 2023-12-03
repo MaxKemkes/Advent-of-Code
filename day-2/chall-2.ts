@@ -29,8 +29,8 @@ const filterFunc = ( list: string[]): boolean => {
             const [num, color] = game.split(" ") as [string, Color]
             
             if (color === "red") cubes[0] = Math.max(cubes[0], Number(num))
-            if (color === "green") cubes[1] = Math.max(cubes[0], Number(num));
-            if (color === "blue") cubes[0] = Math.max(cubes[0], Number(num));
+            if (color === "green") cubes[1] = Math.max(cubes[1], Number(num));
+            if (color === "blue") cubes[2] = Math.max(cubes[2], Number(num));
         })
     })
     if (cubes[0] > maxRed || cubes[1] > maxGreen || cubes[2] > maxBlue) return false
@@ -40,30 +40,22 @@ const filterFunc = ( list: string[]): boolean => {
 
 const filtered = lines.filter(e => (filterFunc(e[1])))
 
-const sum = filtered.reduce((acc, curr) => {
-    return acc + curr[0]
-}, 0)
-console.log(sum)
-
-// console.log(filtered)
-
-
-const mapped = lines.map(e => {
+const sum = lines.reduce((acc, curr) => {
     let cubes: [number, number, number] = [0, 0, 0];
 
-	e[1].forEach((el) => {
+	curr[1].forEach((el) => {
 		const gameSet = el.split(", ");
 
 		gameSet.forEach((game) => {
 			const [num, color] = game.split(" ") as [string, Color];
 
-			if (color === "red") cubes[0] += Number(num);
-			if (color === "green") cubes[1] += Number(num);
-			if (color === "blue") cubes[2] += Number(num);
+			if (color === "red") cubes[0] = Math.max(cubes[0], Number(num));
+			if (color === "green") cubes[1] = Math.max(cubes[1], Number(num));
+			if (color === "blue") cubes[2] = Math.max(cubes[2], Number(num));
 		});
 	});
+	
+    return acc + (cubes[0] * cubes[1] * cubes[2])
+}, 0)
+console.log(sum)
 
-    return cubes
-})
-
-console.log(mapped)

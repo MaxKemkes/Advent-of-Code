@@ -33,37 +33,43 @@ const lines = readFileSync("day-1/lines.txt", "utf-8")
 
 		for (const [key, value] of Object.entries(numDict)) {
             if (str.indexOf(key) < firstIndex[0] && str.indexOf(key) !== -1){
-                firstIndex= [str.indexOf(key), key as keyof typeof numDict, value]
+                firstIndex = [str.indexOf(key), key as keyof typeof numDict, value]
             }
 		}
         
-        for (const [key, value] of Object.entries(numDict)){
+        const indexes = str.match(/\d/g)
+        if (Number(str.indexOf(indexes[0])) > firstIndex[0]) {
+			str = replaceFirst(str, firstIndex[1], firstIndex[2]);
+		}
+
+        if (str === "sgeightwo3") {
+			console.log(str);
+			console.log(firstIndex);
+			console.log(lastIndex);
+            console.log(indexes)
+            console.log(
+				"First number:",
+				Number(str.indexOf(indexes[0])) > firstIndex[0]
+			);
+		}
+
+        for (const [key, value] of Object.entries(numDict)) {
             if (
-				str.lastIndexOf(key) > lastIndex[0] &&
-				str.indexOf(key) !== -1
-			) {
-				lastIndex = [
-					str.lastIndexOf(key),
-					key as keyof typeof numDict,
-					value,
-				];
-			}
-        }
-        if (str === "twofivesix34nine") {
-            console.log(str)
-            console.log(firstIndex)
-            console.log(lastIndex)
+                str.lastIndexOf(key) > lastIndex[0] &&
+                str.indexOf(key) !== -1
+            ) {
+                lastIndex = [
+                    str.lastIndexOf(key),
+                    key as keyof typeof numDict,
+                    value,
+                ];
+            }
         }
         
-        if (str.search(/\d/) > firstIndex[0]){
-            str = replaceFirst(str, firstIndex[1], firstIndex[2])
-        }
-        str = replaceLast(str, lastIndex[1], lastIndex[2])
-
-          if (str === "twofivesix34nine") {
-				console.log(str);
-				// console.log(firstIndex);
-				// console.log(lastIndex);
+        const _indexes = str.match(/\d/g);
+        
+        if (Number(str.lastIndexOf(_indexes[_indexes.length - 1])) < lastIndex[0]){
+            str = replaceLast(str, lastIndex[1], lastIndex[2])
         }
 
         return str;
