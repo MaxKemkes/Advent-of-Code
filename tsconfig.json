@@ -1,0 +1,28 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"noImplicitAny": false,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"sourceMap": true,
+		"forceConsistentCasingInFileNames": true,
+		"outDir": "dist",
+		"declaration": true
+	},
+	"exclude": ["node_modules"],
+    "ts-node": {
+        "esm": true,
+		"target": "ESNext",
+		"module": "ESNext",
+        "moduleResolution": "Bundler",
+        "esModuleInterop": true,
+		"noImplicitAny": false,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"sourceMap": true,
+		"forceConsistentCasingInFileNames": true,
+		"declaration": true
+	}
+}
