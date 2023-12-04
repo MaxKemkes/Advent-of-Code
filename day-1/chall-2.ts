@@ -1,4 +1,5 @@
-import {readFileSync} from "fs"
+
+import loadQuizzContent from "../lib/load-quizz"
 
 const numDict = {
     one: "1",
@@ -24,7 +25,7 @@ const replaceLast = (str: string, subStr: keyof typeof numDict, replace: typeof 
     return list.join(subStr) + replace + lastList
 }
 
-const lines = readFileSync("day-1/lines.txt", "utf-8")
+const lines = loadQuizzContent("./lines.txt")
 	.split(/\r\n/)
 	.map((e) => {
 		let str = e;

@@ -1,8 +1,8 @@
-import {readFileSync} from "fs"
+import loadQuizzContent from "../lib/load-quizz";
 
-const lines = readFileSync("day-1/lines.txt", "utf-8")
+const lines = loadQuizzContent("./lines.txt")
 	.split(/\r\n/)
-	.map((e) => (e.replace(/([A-Za-z])/g, "")));
+	.map((e) => e.replace(/([A-Za-z])/g, ""));
 
 // console.log(lines)
 

@@ -1,16 +1,8 @@
-import { readFileSync } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import loadQuizzContent from "../lib/load-quizz";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-
-const lines = readFileSync(path.resolve(__dirname, "./schematic.txt"), "utf-8")
+const lines = loadQuizzContent("./schematic.txt")
 	.split(/\r\n/)
 
-
-const line = lines[0]
 
 function numberTuples(str:string){
     const regEx = /\d*/g

@@ -1,15 +1,6 @@
-import { readFileSync } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import loadQuizzContent from "../lib/load-quizz";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const lines = readFileSync(
-	path.resolve(__dirname, "./cards.txt"),
-	"utf-8"
-).split(/\r\n/);
-
+const lines = loadQuizzContent("./cards.txt").split(/\r\n/)
 
 const games = lines.map(e => {
     const game =   e.substring(e.indexOf(": ")+ 2)
