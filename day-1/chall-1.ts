@@ -1,6 +1,9 @@
-import loadQuizzContent from "../lib/load-quizz";
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const lines = loadQuizzContent("./lines.txt")
+var __dirname = path.dirname(fileURLToPath(import.meta.url));
+const lines = readFileSync(path.resolve(__dirname,"lines.txt"), "utf-8")
 	.split(/\r\n/)
 	.map((e) => e.replace(/([A-Za-z])/g, ""));
 

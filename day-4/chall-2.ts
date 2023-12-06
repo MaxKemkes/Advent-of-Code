@@ -1,7 +1,13 @@
 import Queue from "../lib/queue";
-import loadQuizzContent from "../lib/load-quizz";
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const lines = loadQuizzContent("./cards.txt").split(/\r\n/);
+var __dirname = path.dirname(fileURLToPath(import.meta.url));
+const lines = readFileSync(path.resolve(__dirname, "cards.txt"), "utf-8").split(
+	/\r\n/
+);
+
 
 const games = lines.map(e => {
     const game =   e.substring(e.indexOf(": ")+ 2)

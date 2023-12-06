@@ -1,5 +1,7 @@
 
-import loadQuizzContent from "../lib/load-quizz"
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const numDict = {
     one: "1",
@@ -25,7 +27,8 @@ const replaceLast = (str: string, subStr: keyof typeof numDict, replace: typeof 
     return list.join(subStr) + replace + lastList
 }
 
-const lines = loadQuizzContent("./lines.txt")
+var __dirname = path.dirname(fileURLToPath(import.meta.url));
+const lines = readFileSync(path.resolve(__dirname,"lines.txt"), "utf-8")
 	.split(/\r\n/)
 	.map((e) => {
 		let str = e;
