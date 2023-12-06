@@ -13,7 +13,7 @@ const dict: {[key:string]: string[]} = {}
 const position: [number, number][] = []
 const minFinalPos: number[]  =[]
 
-loadQuizzContent("./test.txt").split(/\r\n\r\n/g).forEach(e => {
+loadQuizzContent("./puzzle.txt").split(/\r\n\r\n/g).forEach(e => {
     const [key, val] = e.split(":")
 
     if (key === "seeds"){
@@ -31,11 +31,26 @@ loadQuizzContent("./test.txt").split(/\r\n\r\n/g).forEach(e => {
 
 function translatePosition(map: string[], position: ([number, number] | null)[]){
     const _position:[number, number][] = []
+
+    const _map = map.map(e => e.split(" ").map(n => Number(n)) as [number, number, number])
+    _map.sort((prev, next) => {
+        if (prev[1] < next[1]){
+            return -1
+        }
+
+        if (prev[1] > next[1]){
+            return 1
+        }
+        
+        return 0
+    })
+
+    console.log(_map)
     
     for (let i = 0; i < position.length; i++){
         
-        for (let j = 0; j < map.length && position[i] !== null; j++){
-            const [destination, start, range] = map[j].split(" ").map(n => Number(n)) as [number, number, number]
+        for (let j = 0; j < _map.length && position[i] !== null; j++){
+            const [destination, start, range] = _map[j]
             
             //complete range inbound
             if (
@@ -52,14 +67,15 @@ function translatePosition(map: string[], position: ([number, number] | null)[])
 					position[i][1],
 				]);
 				position[i] = null
+                console.log("New Position", position[i]);
                 continue
 			}
             
             //start outbound and end inbound
             if (
                 position[i][0] < start &&
-				position[i][0] + position[i][1] < start + range &&
-                position[i][0] + position[i][1] >= start
+                position[i][0] + position[i][1] -1 >= start &&
+				position[i][0] + position[i][1] <= start + range
                 ){
                 // console.log("start out end in")
                 //split beginning until new start
@@ -69,7 +85,10 @@ function translatePosition(map: string[], position: ([number, number] | null)[])
                     console.log(position[i], map[j]);
                 }
                 _position.push([destination, position[i][0] + position[i][1] - start]);
-                position[i] = [position[i][0], start - position[i][0]];
+                position[i] = [position[i][0], start - position[i][0] ];
+                // _position.push([position[i][0], start - position[i][0] ]);
+                // position[i] = null;
+                console.log("New Position", position[i]);
                 continue
             }
             
@@ -91,14 +110,20 @@ function translatePosition(map: string[], position: ([number, number] | null)[])
                     position[i] =[
                         start + range,
 					position[i][0] + position[i][1] - (start + range),
-				];
-                continue
+			    	];
+                    // _position.push([
+                    //     start + range,
+					// position[i][0] + position[i][1] - (start + range),
+			    	// ]);
+                    // position[i] =null;
+                    console.log("New Position", position[i])
+                    continue
 			}
 
             // console.log("new Pos ", position[i])
             
         }
-        if (position[i])  _position.push(position[i])
+        if (!!position[i])  _position.push(position[i])
     }
         // console.log(position)
 
@@ -106,6 +131,9 @@ function translatePosition(map: string[], position: ([number, number] | null)[])
 }
 
 console.log(position)
+const sumRange = position.reduce((acc, curr) => {
+    return acc + curr[1]
+},0)
 
 let newPos = position
 for (const [key, value] of Object.entries(dict)){
@@ -113,10 +141,14 @@ for (const [key, value] of Object.entries(dict)){
 
     newPos = translatePosition(value, newPos);
     console.log(newPos)
-    console.log(Math.min(...newPos.map(e => e[0])))
+    // console.log("Sum Range new" ,newPos.reduce((acc, curr) => {
+    //     return acc + curr[1]
+    // },0), sumRange)
+    // console.log(Math.min(...newPos.map(e => e[0])))
     minFinalPos.push(Math.min(...newPos.map(e => e[0])))
 }
 
-console.log(minFinalPos[minFinalPos.length-1])
+
+console.log("Final min", minFinalPos[minFinalPos.length-1])
 
 // console.log("Min:", Math.min(...minFinalPos))
