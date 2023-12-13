@@ -1,10 +1,12 @@
-import { readFileSync } from "fs";
+import fs, { readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import Queue from "../lib/queue";
 
+const file = "quizz.txt"
+
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
-const lines = readFileSync(path.resolve(__dirname, "example2.txt"), "utf-8")
+const lines = readFileSync(path.resolve(__dirname, file), "utf-8")
   .split(/\r\n/)
 
 type NodeValue = "|" | "-" | "L" | "J" | "7" | "F" | "." | "S" 
@@ -123,8 +125,8 @@ for(let i = 0; i < lines.length; ++i){
     graph.push(row)
 }
 
-console.log(graph)
-console.log(start)
+// console.log(graph)
+// console.log(start)
 
 function walk(graph: GraphNode[][], curr: GraphNode, steps: number, dist: number[][], queue: GraphQueue){
     // console.log(curr)
@@ -167,7 +169,7 @@ function search(graph: GraphNode[][], start:GraphNode): ("L" | "?" | "O")[][]{
         walk(graph, node, steps, dist, queue)
     }
 
-    return dist.map(e => e.map(n => n > 0 ? "L" : "?"))
+    return dist.map(e => e.map(n => n > -1 ? "L" : "?"))
 }
 
 const graphMap = search(graph, start)
@@ -175,37 +177,46 @@ const graphMap = search(graph, start)
 console.log(graphMap)
 for (let i = 0; i < graphMap.length; ++i){
     for (let j = 0; j < graphMap[i].length; ++j){
-        ["top-let", "bot-right"].forEach(e => {
-            const x = e === "top-left" ? i : graphMap.length - 1 -i
-            const y = e === "top-left" ? j : graphMap[i].length - 1 -j
-            const value = graphMap[x][y]
+        //start 2 times, 1. top-left go from left-to-right top-to-bottom,
+        // 2nd time go from right-to-left, bottom-to-top
+        ["top-left", "bot-right"].forEach(e => {
+            const row = e === "top-left" ? i : graphMap.length - 1 -i
+            const col = e === "top-left" ? j : graphMap[i].length - 1 -j
+            const value = graphMap[row][col]
             if (value === "?"){
-    
-                if (x === 0 || x === graphMap.length - 1 || y === 0 || y === graphMap[x].length -1){
-                    graphMap[x][y] = "O"
+                if (row === 0 || row === graphMap.length - 1 || col === 0 || col === graphMap[row].length -1){
+                    graphMap[row][col] = "O"
                 }
         
-                if (x > 0){
-                    if(graphMap[x -1][y] === "O") graphMap[x][y] = "O"; 
+                if (row > 0){
+                    if(graphMap[row -1][col] === "O") graphMap[row][col] = "O"; 
                 }
         
-                if (x < graphMap.length -1){
-                    if(graphMap[x + 1][y] === "O") graphMap[x ][y] = "O"
+                if (row < graphMap.length -1){
+                    if(graphMap[row + 1][col] === "O") graphMap[row][col] = "O"
                 }
         
-                if (y > 0 ){
-                    if (graphMap[x][y - 1] === "O") graphMap[x][y ] = "O"
+                if (col > 0 ){
+                    console.log(row, col)
+                    if (graphMap[row][col - 1] === "O") graphMap[row][col] = "O"
                 }
         
-                if (y < graphMap[x].length -1){
-                    if (graphMap[x][y + 1] === "O") graphMap[x][y ] = "O"
+                if (col < graphMap[row].length -1){
+                    if (graphMap[row][col + 1] === "O") graphMap[row][col] = "O"
                 }
             }
         })
     }
 }
-console.log("Marked Os")
-console.log(graphMap);
+
+
+// console.log("Marked Os")
+// console.log(graphMap);
+
+fs.writeFileSync(
+	path.resolve(__dirname, "zwischen_" + file),
+	graphMap.map((e) => e.join("")).join("\r\n")
+);
 
 for (let j = 0; j < graphMap[0].length; ++j) {
     let [hasOTop, has0Bot] = [false, false]
@@ -254,19 +265,15 @@ for (let j = 0; j < graphMap[0].length; ++j) {
             }
         }
 
-        if ((i === 2 && j === 4) || (i === 7 && j === 4)){
-            console.log(hasOTop, has0Bot)
-        }
-
         if(hasOTop){
             if (valueTop === "?" ) graphMap[i][j] = "O"
             if (topRightCorner && !topLeftCorner && nodeTopLeft === "?") {
                 graphMap[i][Math.max(0, j-1)] = "O"
-                console.log(nodeTopLeft)
+                // console.log(nodeTopLeft)
             }
             if (!topRightCorner && topLeftCorner && nodeTopRight === "?"){
                 graphMap[i][Math.min(graphMap[i].length - 1, j + 1)] = "O";
-                console.log(nodeTopRight)
+                // console.log(nodeTopRight)
             } 
         }
         
@@ -274,19 +281,187 @@ for (let j = 0; j < graphMap[0].length; ++j) {
             if (valueBot === "?" ) graphMap[i][j] = "O"
             if (botRightCorner && !botLeftCorner && nodeBotLeft === "?") {
                 graphMap[graphMap.length -1 - i][Math.max(0,  j-1)] = "O"
-                console.log(nodeBotLeft)
+                // console.log(nodeBotLeft)
             }
             if (!botRightCorner && botLeftCorner && nodeBotRight === "?") {
-                graphMap[i][Math.min(graphMap[i].length - 1, j + 1)] = "O";
-                console.log(nodeBotLeft)
+                graphMap[graphMap.length - 1 - i][
+					Math.min(graphMap[i].length - 1, j + 1)
+				] = "O";
+                // console.log(nodeBotLeft)
             }
         }
         
   }
 }
 
-console.log("O Marked 2")
-console.log(graphMap)
+// console.log("O Marked 2")
+// console.log(graphMap)
+
+for (let i = 0; i < graphMap.length; ++i) {
+	for (let j = 0; j < graphMap[i].length; ++j) {
+		//start 2 times, 1. top-left go from left-to-right top-to-bottom,
+		// 2nd time go from right-to-left, bottom-to-top
+		["top-left", "bot-right"].forEach((e) => {
+			const row = e === "top-left" ? i : graphMap.length - 1 - i;
+			const col = e === "top-left" ? j : graphMap[i].length - 1 - j;
+			const value = graphMap[row][col];
+			if (value === "?") {
+				if (
+					row === 0 ||
+					row === graphMap.length - 1 ||
+					col === 0 ||
+					col === graphMap[row].length - 1
+				) {
+					graphMap[row][col] = "O";
+				}
+
+				if (row > 0) {
+					if (graphMap[row - 1][col] === "O")
+						graphMap[row][col] = "O";
+				}
+
+				if (row < graphMap.length - 1) {
+					if (graphMap[row + 1][col] === "O")
+						graphMap[row][col] = "O";
+				}
+
+				if (col > 0) {
+					console.log(row, col);
+					if (graphMap[row][col - 1] === "O")
+						graphMap[row][col] = "O";
+				}
+
+				if (col < graphMap[row].length - 1) {
+					if (graphMap[row][col + 1] === "O")
+						graphMap[row][col] = "O";
+				}
+			}
+		});
+	}
+}
+
+for (let j = 0; j < graphMap[0].length; ++j) {
+	let [hasOTop, has0Bot] = [false, false];
+	let [botLeftCorner, botRightCorner] = [false, false];
+	let [topLeftCorner, topRightCorner] = [false, false];
+	for (let i = 0; i < graphMap.length; ++i) {
+		const valueTop = graphMap[i][j];
+		const valueBot = graphMap[graphMap.length - i - 1][j];
+		//check if something is outside in between
+		if (valueTop === "O") hasOTop = true;
+		if (valueBot === "O") has0Bot = true;
+
+		const nodeTop = graph[i][j];
+		const nodeTopLeft = graphMap[i][Math.max(0, j - 1)];
+		const nodeTopRight =
+			graphMap[i][Math.min(graphMap[i].length - 1, j + 1)];
+		const nodeBot = graph[graphMap.length - i - 1][j];
+		const nodeBotLeft =
+			graphMap[graphMap.length - i - 1][Math.max(0, j - 1)];
+		const nodeBotRight =
+			graphMap[graphMap.length - i - 1][
+				Math.min(graphMap[i].length - 1, j + 1)
+			];
+
+		// kill Outside boolean if separated
+		if (valueTop === "L") {
+			if (nodeTop.value === "J" || nodeTop.value === "7")
+				topLeftCorner = true;
+			if (nodeTop.value === "F" || nodeTop.value === "L")
+				topRightCorner = true;
+			if (nodeTop.value === "-" || (topLeftCorner && topRightCorner)) {
+				hasOTop = false;
+				topLeftCorner = false;
+				topRightCorner = false;
+			}
+		}
+		if (valueBot === "L") {
+			if (nodeBot.value === "J" || nodeBot.value === "7")
+				botLeftCorner = true;
+			if (nodeBot.value === "F" || nodeBot.value === "L")
+				botRightCorner = true;
+			if (nodeBot.value === "-" || (botLeftCorner && botRightCorner)) {
+				has0Bot = false;
+				botLeftCorner = false;
+				botRightCorner = false;
+			}
+		}
+
+		if (hasOTop) {
+			if (valueTop === "?") graphMap[i][j] = "O";
+            const onlyRightCorner = (topRightCorner && !topLeftCorner)
+            const onlyLeftCorner = (topLeftCorner && !topRightCorner)
+			if ((onlyLeftCorner || onlyRightCorner) && nodeTopLeft === "?") {
+				graphMap[i][Math.max(0, j - 1)] = "O";
+				// console.log(nodeTopLeft)
+			}
+			if ((onlyLeftCorner || onlyRightCorner) && nodeTopRight === "?") {
+				graphMap[i][Math.min(graphMap[i].length - 1, j + 1)] = "O";
+				// console.log(nodeTopRight)
+			}
+		}
+
+		if (has0Bot) {
+			if (valueBot === "?") graphMap[i][j] = "O";
+            const onlyRightCorner = botRightCorner && !botLeftCorner;
+			const onlyLeftCorner = botLeftCorner && !botRightCorner;
+			if ((onlyLeftCorner || onlyRightCorner) && nodeBotLeft === "?") {
+				graphMap[graphMap.length - 1 - i][Math.max(0, j - 1)] = "O";
+				// console.log(nodeBotLeft)
+			}
+			if ((onlyLeftCorner || onlyRightCorner) && nodeBotRight === "?") {
+				graphMap[graphMap.length - 1 - i][
+					Math.min(graphMap[i].length - 1, j + 1)
+				] = "O";
+				// console.log(nodeBotLeft)
+			}
+		}
+	}
+}
+
+for (let i = 0; i < graphMap.length; ++i) {
+	for (let j = 0; j < graphMap[i].length; ++j) {
+		//start 2 times, 1. top-left go from left-to-right top-to-bottom,
+		// 2nd time go from right-to-left, bottom-to-top
+		["top-left", "bot-right"].forEach((e) => {
+			const row = e === "top-left" ? i : graphMap.length - 1 - i;
+			const col = e === "top-left" ? j : graphMap[i].length - 1 - j;
+			const value = graphMap[row][col];
+			if (value === "?") {
+				if (
+					row === 0 ||
+					row === graphMap.length - 1 ||
+					col === 0 ||
+					col === graphMap[row].length - 1
+				) {
+					graphMap[row][col] = "O";
+				}
+
+				if (row > 0) {
+					if (graphMap[row - 1][col] === "O")
+						graphMap[row][col] = "O";
+				}
+
+				if (row < graphMap.length - 1) {
+					if (graphMap[row + 1][col] === "O")
+						graphMap[row][col] = "O";
+				}
+
+				if (col > 0) {
+					console.log(row, col);
+					if (graphMap[row][col - 1] === "O")
+						graphMap[row][col] = "O";
+				}
+
+				if (col < graphMap[row].length - 1) {
+					if (graphMap[row][col + 1] === "O")
+						graphMap[row][col] = "O";
+				}
+			}
+		});
+	}
+}
+
 
 const notOs = graphMap.reduce((acc, curr) => {
     return acc + curr.reduce((acc2, curr2) => {
@@ -295,5 +470,5 @@ const notOs = graphMap.reduce((acc, curr) => {
 },0)
 
 // console.log()
-
+fs.writeFileSync(path.resolve(__dirname, "output_"+ file), graphMap.map(e => e.join("")).join("\r\n"))
 console.log(notOs)
